@@ -29,10 +29,12 @@
     module.exports = connectDB;
     ```
 
-4.  Create default.json - Paste the following code within default.json
-    ```json
-    {
-    "mongoURI": "mongodb+srv://<username>:<password>@devd.7tbiq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
-    "jwtSecret": <"secret-token">
-    }
-    ```
+4.  Create default.json
+
+- Paste the following code within default.json
+  ```json
+  {
+  "mongoURI": "mongodb+srv://<username>:<password>@devd.7tbiq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority",
+  "jwtSecret": <"secret-token">
+  }
+  ```
