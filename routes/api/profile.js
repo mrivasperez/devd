@@ -120,4 +120,21 @@ router.post(
   }
 );
 
+// @route           GET api/profile
+// @description     Get all profiles
+// @access          Public
+
+router.get("/", async (req, res) => {
+  try {
+    // create variable to store profile, use populate method to add users key with name and avatar vars
+    const profiles = await Profile.find().populate("user", ["name", "avatar"]);
+
+    // send profiles
+    res.json(profiles);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
