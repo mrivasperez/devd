@@ -3,6 +3,7 @@ const router = express.Router();
 const { check, validationResult } = require("express-validator/check");
 
 const auth = require("../../middleware/auth");
+const { remove } = require("../../models/Profile");
 const Profile = require("../../models/Profile");
 const User = require("../../models/User");
 
@@ -235,6 +236,7 @@ router.put(
       // get profile from db
       const profile = await Profile.findOne({ user: req.user.id });
       profile.experience.unshift(newExperience);
+      await profile.save();
       res.json(profile);
     } catch (error) {
       console.error(error.message);
@@ -242,5 +244,40 @@ router.put(
     }
   }
 );
+
+// @route           DELETE api/profile/experience/:experience_id
+// @description     Delete experience from profile
+// @access          Private
+
+router.delete("/experience/:experience_id", auth, async (req, res) => {
+  try {
+    // get profile of logged in user
+    const profile = await Profile.findOne({ user: req.user.id });
+
+    if (!profile) {
+      return res.status(400).json({ message: "Profile was not found." });
+    }
+
+    // get index by id of experience
+    const removeIndex = profile.experience
+      .map((item) => item.id)
+      .indexOf(req.params.experience_id);
+
+    // if experience is not found by id, then don't delete - prevents erroneously deleting
+    if (removeIndex === -1) return res.json(profile);
+
+    // remove the experience based on its index
+    profile.experience.splice(removeIndex, 1);
+
+    // save changes to user profile
+    await profile.save();
+
+    // send profile
+    res.json(profile);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
