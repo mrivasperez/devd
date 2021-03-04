@@ -137,4 +137,110 @@ router.get("/", async (req, res) => {
   }
 });
 
+// @route           GET api/profile/user/:user_id
+// @description     Get profile by user id
+// @access          Public
+
+router.get("/user/:user_id", async (req, res) => {
+  try {
+    // create variable to store profile, use populate method to add users key with name and avatar vars
+    const profile = await Profile.findOne({
+      user: req.params.user_id,
+    }).populate("user", ["name", "avatar"]);
+
+    // check if profile exists for user
+    if (!profile)
+      return res.status(400).json({ message: "Profile was not found." });
+
+    // send profiles
+    res.json(profile);
+  } catch (error) {
+    console.error(error.message);
+
+    // check the kind of error to display profile or server error
+    if (error.kind == "ObjectId") {
+      return res.status(400).json({ message: "Profile was not found." });
+    }
+
+    // send server error
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route           DELETE api/profile
+// @description     Delete profile, user, and posts
+// @access          Private
+
+router.delete("/", auth, async (req, res) => {
+  try {
+    // !TODO Remove user's posts
+
+    // remove profile
+    await Profile.findOneAndRemove({ user: req.user.id });
+
+    // remove user
+    await User.findByIdAndRemove({ _id: req.user.id });
+
+    // send profiles
+    res.json({ message: "User has been deleted." });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
+// @route           PUT api/profile/experience
+// @description     Add profile experience
+// @access          Private
+
+router.put(
+  "/experience",
+  [
+    auth,
+    [
+      //validation
+      check("title", "Title is required").not().isEmpty(),
+      check("company", "Company is required").not().isEmpty(),
+      check("from", "From date is required").not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // get data from request
+    const {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description,
+    } = req.body;
+
+    const newExperience = {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description,
+    };
+
+    try {
+      // get profile from db
+      const profile = await Profile.findOne({ user: req.user.id });
+      profile.experience.unshift(newExperience);
+      res.json(profile);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
 module.exports = router;
