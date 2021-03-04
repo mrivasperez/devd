@@ -3,7 +3,7 @@
 ## To create config files
 
 1.  Navigate to root directory
-2.  Create folder <config>
+2.  Create folder titled "config"
 3.  Create db.js
 
     - Paste the following code within db.js:
