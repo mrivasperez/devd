@@ -280,4 +280,95 @@ router.delete("/experience/:experience_id", auth, async (req, res) => {
   }
 });
 
+// @route           PUT api/profile/education
+// @description     Add profile education
+// @access          Private
+
+router.put(
+  "/education",
+  [
+    auth,
+    [
+      //validation
+      check("school", "School is required").not().isEmpty(),
+      check("degree", "Degree is required").not().isEmpty(),
+      check("fieldOfStudy", "Field of study is required").not().isEmpty(),
+      check("from", "From date is required").not().isEmpty(),
+    ],
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    // get data from request
+    const {
+      school,
+      degree,
+      fieldOfStudy,
+      from,
+      to,
+      current,
+      description,
+    } = req.body;
+
+    const newEducation = {
+      school,
+      degree,
+      fieldOfStudy,
+      from,
+      to,
+      current,
+      description,
+    };
+
+    try {
+      // get profile from db
+      const profile = await Profile.findOne({ user: req.user.id });
+      profile.education.unshift(newEducation);
+      await profile.save();
+      res.json(profile);
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send("Server Error");
+    }
+  }
+);
+
+// @route           DELETE api/profile/education/:experience_id
+// @description     Delete education from profile
+// @access          Private
+
+router.delete("/education/:education_id", auth, async (req, res) => {
+  try {
+    // get profile of logged in user
+    const profile = await Profile.findOne({ user: req.user.id });
+
+    if (!profile) {
+      return res.status(400).json({ message: "Profile was not found." });
+    }
+
+    // get index by id of education
+    const removeIndex = profile.education
+      .map((item) => item.id)
+      .indexOf(req.params.education_id);
+
+    // if education is not found by id, then don't delete - prevents erroneously deleting
+    if (removeIndex === -1) return res.json(profile);
+
+    // remove the education based on its index
+    profile.education.splice(removeIndex, 1);
+
+    // save changes to user profile
+    await profile.save();
+
+    // send profile
+    res.json(profile);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
+
 module.exports = router;
