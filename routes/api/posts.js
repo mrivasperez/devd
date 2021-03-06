@@ -6,6 +6,7 @@ const auth = require("../../middleware/auth");
 const User = require("../../models/User");
 const Post = require("../../models/Post");
 const Profile = require("../../models/Profile");
+const { restart } = require("nodemon");
 
 // @route           POST api/posts
 // @description     Create a post
@@ -226,5 +227,46 @@ router.post(
     }
   }
 );
+
+// TODO! Allow people to remove comments on THEIR post
+
+// @route           DELETE api/posts/comment/:id/:comment_id
+// @description     Delete comment from a post
+// @access          Private
+router.delete("/comment/:id/:comment_id/", auth, async (req, res) => {
+  try {
+    // get post by ID
+    const post = await Post.findById(req.params.id);
+
+    // get comment from post by ID
+    const comment = post.comments.find(
+      (comment) => comment.id === req.params.comment_id
+    );
+
+    // check if comment exists
+    if (!comment) {
+      return res.status(400).json({ message: "Comment does not exist." });
+    }
+    // make sure user that is deleting the comment is the user that made the comment
+    if (comment.user.toString() !== req.user.id) {
+      return res.status(401).json({ message: "User not authorized." });
+    }
+
+    // get index of comment to delete
+    const removeIndex = post.comments
+      .map((comment) => comment.user.toString())
+      .indexOf(req.user.id);
+    post.comments.splice(removeIndex, 1);
+
+    // save new post
+    await post.save();
+
+    // return existing comments
+    return res.json(post.comments);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
