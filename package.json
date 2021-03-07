@@ -4,7 +4,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server",
-    "server": "nodemon server"
+    "server": "nodemon server",
+    "client": "yarn --prefix client start",
+    "dev": "concurrently \"yarn server\" \"yarn --cwd client start\""
   },
   "license": "MIT",
   "dependencies": {
