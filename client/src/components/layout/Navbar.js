@@ -3,14 +3,14 @@ import { Link, NavLink } from "react-router-dom";
 
 export const Navbar = () => {
   return (
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <div className="container">
         {" "}
-        <Link class="navbar-brand" to="/">
-          <i class="bi bi-journal-code"></i> devd
+        <Link className="navbar-brand" to="/">
+          <i className="bi bi-journal-code"></i> devd
         </Link>
         <button
-          class="navbar-toggler"
+          className="navbar-toggler"
           type="button"
           data-toggle="collapse"
           data-target="#navbarColor03"
@@ -18,25 +18,25 @@ export const Navbar = () => {
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          <span class="navbar-toggler-icon"></span>
+          <span className="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="navbarColor03">
-          <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/">
+        <div className="collapse navbar-collapse" id="navbarColor03">
+          <ul className="navbar-nav ml-auto">
+            <li className="nav-item">
+              <a className="nav-link" href="/">
                 Developers
               </a>
             </li>
-            <li class="nav-item">
+            <li className="nav-item">
               <NavLink
                 className="nav-link"
                 to="/signup"
                 activeClassName="active"
               >
-                Register
+                Sign Up
               </NavLink>
             </li>
-            <li class="nav-item">
+            <li className="nav-item">
               <NavLink className="nav-link" to="/login">
                 Login
               </NavLink>
